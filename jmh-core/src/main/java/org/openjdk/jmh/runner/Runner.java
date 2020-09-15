@@ -192,7 +192,13 @@ public class Runner extends BaseRunner {
             channel = new RandomAccessFile(file, "rw").getChannel();
 
             try {
+                out.println(ManagementFactory.getRuntimeMXBean().getName() + " acquire lock... in: ");
+                show(Thread.currentThread().getStackTrace());
                 lock = channel.tryLock();
+                if (lock == null)
+                    out.println(ManagementFactory.getRuntimeMXBean().getName() + " lock not acquired");
+                else
+                    out.println(ManagementFactory.getRuntimeMXBean().getName() + " lock acquired");
             } catch (OverlappingFileLockException e) {
                 // fall-through
             }
@@ -216,15 +222,30 @@ public class Runner extends BaseRunner {
                 throw new RunnerException("ERROR: " + msg  + ", exiting. Use -Djmh.ignoreLock=true to forcefully continue.");
             }
         } finally {
+            out.println(ManagementFactory.getRuntimeMXBean().getName() + " on finally");
             try {
                 if (lock != null) {
+                    out.println(ManagementFactory.getRuntimeMXBean().getName() + " release lock...");
                     lock.release();
+                    out.println("Lock released");
                 }
             } catch (IOException e) {
                 // do nothing
             }
+            out.println(ManagementFactory.getRuntimeMXBean().getName() + " close channel...");
             FileUtils.safelyClose(channel);
+            out.println(ManagementFactory.getRuntimeMXBean().getName() + " channel closed");
         }
+    }
+
+    private static void show(StackTraceElement[] stackTrace)
+    {
+        StringBuilder threadDump = new StringBuilder();
+        for (StackTraceElement element : stackTrace)
+        {
+            threadDump.append(String.format("\tat %s%n", element));
+        }
+        System.out.println(threadDump.toString());
     }
 
     private Collection<RunResult> internalRun() throws RunnerException {
@@ -476,11 +497,21 @@ public class Runner extends BaseRunner {
                 benchmark.getJvm().orElse(Utils.getCurrentJvm()));
 
         Properties targetProperties;
-        if (jvm.equals(Utils.getCurrentJvm())) {
-            targetProperties = Utils.getRecordedSystemProperties();
-        } else {
-            targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
-        }
+        targetProperties = Utils.getRecordedSystemProperties();
+
+//        if (jvm.equals(Utils.getCurrentJvm())) {
+//            targetProperties = Utils.getRecordedSystemProperties();
+//        } else {
+//            try
+//            {
+//                targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
+//            }
+//            catch (Throwable t)
+//            {
+//                // Fall back on local properties
+//                targetProperties = Utils.getRecordedSystemProperties();
+//            }
+//        }
 
         Collection<String> jvmArgs = new ArrayList<>();
 
@@ -855,6 +886,11 @@ public class Runner extends BaseRunner {
     }
 
     private void addClasspath(List<String> command) {
+        // No need for classpath in substratevm because it's a native executable.
+        String name = System.getProperty("java.vm.name");
+        if ("Substrate VM".equals(name))
+            return;
+
         command.add("-cp");
 
         String cpProp = System.getProperty("java.class.path");
