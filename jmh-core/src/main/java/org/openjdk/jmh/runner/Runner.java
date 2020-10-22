@@ -479,7 +479,16 @@ public class Runner extends BaseRunner {
         if (jvm.equals(Utils.getCurrentJvm())) {
             targetProperties = Utils.getRecordedSystemProperties();
         } else {
-            targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
+            try {
+                targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof InvalidPropertiesFormatException) {
+                    // Fallback on local properties
+                    targetProperties = Utils.getRecordedSystemProperties();
+                } else {
+                    throw e;
+                }
+            }
         }
 
         Collection<String> jvmArgs = new ArrayList<>();
@@ -817,19 +826,19 @@ public class Runner extends BaseRunner {
         // use supplied jvm, if given
         command.add(benchmark.getJvm());
 
-        // use supplied jvm args, if given
-        command.addAll(benchmark.getJvmArgs());
-
-        // add profiler JVM commands, if any profiler wants it
-        command.addAll(javaOptions);
-
-        // add any compiler oracle hints
-        CompilerHints.addCompilerHints(command);
-
-        // assemble final process command
-        addClasspath(command);
-
-        command.add(ForkedMain.class.getName());
+//        // use supplied jvm args, if given
+//        command.addAll(benchmark.getJvmArgs());
+//
+//        // add profiler JVM commands, if any profiler wants it
+//        command.addAll(javaOptions);
+//
+//        // add any compiler oracle hints
+//        CompilerHints.addCompilerHints(command);
+//
+//        // assemble final process command
+//        addClasspath(command);
+//
+//        command.add(ForkedMain.class.getName());
 
         // Forked VM assumes the exact order of arguments:
         //   1) host name to back-connect
