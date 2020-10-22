@@ -125,7 +125,7 @@ public final class BinaryLinkClient {
                     resetToGo = RESET_EACH;
                 }
 
-                oos.writeObject(frame);
+                Externalizer.write(frame, oos);
                 oos.flush();
 
                 // Do all delayed frames now. On the off-chance their writes produce more frames,

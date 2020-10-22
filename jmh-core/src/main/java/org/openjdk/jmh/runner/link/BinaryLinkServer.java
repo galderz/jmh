@@ -284,7 +284,7 @@ public final class BinaryLinkServer {
                 ois = new ObjectInputStream(new BufferedInputStream(is, BUFFER_SIZE));
 
                 Object obj;
-                while ((obj = ois.readObject()) != null) {
+                while ((obj = Externalizer.read(ois)) != null) {
                     if (obj instanceof OutputFormatFrame) {
                         handleOutputFormat((OutputFormatFrame) obj);
                     }
