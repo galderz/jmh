@@ -466,7 +466,16 @@ public class Runner extends BaseRunner {
         if (jvm.equals(Utils.getCurrentJvm())) {
             targetProperties = Utils.getRecordedSystemProperties();
         } else {
-            targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
+            try {
+                targetProperties = Utils.readPropertiesFromCommand(getPrintPropertiesCommand(jvm));
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof InvalidPropertiesFormatException) {
+                    // Fallback on local properties
+                    targetProperties = Utils.getRecordedSystemProperties();
+                } else {
+                    throw e;
+                }
+            }
         }
 
         Collection<String> jvmArgs = new ArrayList<>();
