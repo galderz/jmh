@@ -813,19 +813,19 @@ public class Runner extends BaseRunner {
         // use supplied jvm, if given
         command.add(benchmark.getJvm());
 
-        // use supplied jvm args, if given
-        command.addAll(benchmark.getJvmArgs());
-
-        // add profiler JVM commands, if any profiler wants it
-        command.addAll(javaOptions);
-
-        // add any compiler oracle hints
-        CompilerHints.addCompilerHints(command);
-
-        // assemble final process command
-        addClasspath(command);
-
-        command.add(ForkedMain.class.getName());
+//        // use supplied jvm args, if given
+//        command.addAll(benchmark.getJvmArgs());
+//
+//        // add profiler JVM commands, if any profiler wants it
+//        command.addAll(javaOptions);
+//
+//        // add any compiler oracle hints
+//        CompilerHints.addCompilerHints(command);
+//
+//        // assemble final process command
+//        addClasspath(command);
+//
+//        command.add(ForkedMain.class.getName());
 
         // Forked VM assumes the exact order of arguments:
         //   1) host name to back-connect

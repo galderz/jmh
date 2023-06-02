@@ -29,6 +29,7 @@ import org.openjdk.jmh.runner.options.Options;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +53,9 @@ class ForkedMain {
      * @param argv Command line arguments
      */
     public static void main(String[] argv) {
+        System.out.println("Argv: " + Arrays.toString(argv));
         if (argv.length != 2) {
+            System.out.println("Argv not containing 2 args, instead has: " + Arrays.toString(argv));
             throw new IllegalArgumentException("Expected two arguments for forked VM");
         } else {
             // arm the hangup thread
@@ -85,6 +88,7 @@ class ForkedMain {
 
                 gracefullyFinished = true;
             } catch (Throwable ex) {
+                ex.printStackTrace();
                 exception = ex;
                 gracefullyFinished = false;
             } finally {
