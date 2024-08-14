@@ -87,6 +87,7 @@ class ForkedMain {
 
                 gracefullyFinished = true;
             } catch (Throwable ex) {
+                ex.printStackTrace(nakedErr);
                 exception = ex;
                 gracefullyFinished = false;
             } finally {
